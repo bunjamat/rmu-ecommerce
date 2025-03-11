@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import MainLayout from "@/layout/main-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,15 +18,13 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-
   //children คือ ส่วนของ content ที่เราจะใส่ใน layout นี้
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <h1 className="text-center pt-8 text-3xl font-bold text-red-500 hover:text-blue-500 ">Bird shop </h1>
-        {children}
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );
