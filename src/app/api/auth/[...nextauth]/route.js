@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import LineProvider from "next-auth/providers/line";
+import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
   providers: [
@@ -15,6 +17,7 @@ export const authOptions = {
         }
 
         try {
+
           // ค้นหา user จาก api login
           const res = await fetch("http://localhost:3080/api/authen/login", {
             method: "POST",
@@ -24,13 +27,13 @@ export const authOptions = {
             body: JSON.stringify(credentials),
           });
 
-          if (!res.ok) {
-            throw new Error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
+
+          const user = await res.json();
+
+          if(user.error){
+            throw new Error(user.message);
           }
 
-          if (res.error) {
-            throw new Error(res.message);
-          }
           //   const user = {
           //     id: 1,
           //     email: "m@example.com",
@@ -38,16 +41,40 @@ export const authOptions = {
           //     fullName: "John Doe",
           //     role: "customer",
           //   };
-          const user = await res.json();
-          return user;
+         
+          return {
+            id: user.id,
+            email : user.email,
+            name : user.full_name,
+            role : user.role
+          };
+
         } catch (error) {
-          console.log("🚀 ~ authorize ~ error:", error);
-          return null;
+          throw new Error(error.message);
         }
       },
     }),
+    LineProvider({
+      clientId: process.env.LINE_CLIENT_ID,
+      clientSecret: process.env.LINE_CLIENT_SECRET
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    })
   ],
   callbacks: {
+    // การ login ผ่าน Oauth จะเข้า fn นี้ทั้งหมด
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log("🚀 ~ signIn ~ email:", email)
+      console.log("🚀 ~ signIn ~ profile:", profile)
+      console.log("🚀 ~ signIn ~ account:", account)
+      console.log("🚀 ~ signIn ~ user:", user)
+
+      user.role = "customer"
+
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -59,6 +86,7 @@ export const authOptions = {
       if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.type = "tester"
       }
 
       return session;

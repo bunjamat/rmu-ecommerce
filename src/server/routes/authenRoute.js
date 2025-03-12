@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, error, t } from "elysia";
 import { authenController } from "../controllers/authen.controller";
 
 export const authenRoute = new Elysia({ prefix: "/authen" })
@@ -33,8 +33,21 @@ export const authenRoute = new Elysia({ prefix: "/authen" })
   )
   .post(
     "login",
-    ({ body }) => {
-      return authenController.login(body);
+    async({ body,set }) => {
+
+      const checkLogin = await authenController.login(body);
+      
+
+      if(checkLogin.error) {
+        set.status = 400
+        return {
+          error : true,
+          message : checkLogin.message
+        }
+      }
+
+      return  checkLogin
+  
     },
     {
       body: t.Object({
