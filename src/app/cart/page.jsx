@@ -5,8 +5,8 @@ import useCartStore from '@/lib/store/cart'
  const CartPage = () => {
     const items = useCartStore((stest)=>stest.items)
    return (
-     <div>{items.map((item)=> {
-        return <div className="">
+     <div >{items.map((item,idx)=> {
+        return <div key={idx} className="">
             <p>{item.name}</p>
         </div>
 
