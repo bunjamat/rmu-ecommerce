@@ -1,11 +1,10 @@
-import SigninButton from "@/components/signin-button";
+import FormCheckout from "@/components/form-checkout";
 import React from "react";
 
 const Checkout = () => {
   return (
     <div>
-      Checkout
-      <SigninButton />
+      <FormCheckout/>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import swagger from "@elysiajs/swagger";
 import { products } from "@/lib/mock-data";
 import { productsRoute } from "@/server/routes/productsRoute";
 import { authenRoute } from "@/server/routes/authenRoute";
+import { ordersRoute } from "@/server/routes/ordersRoute";
 
 const swaggerConfig = {
   documentation: {
@@ -19,6 +20,7 @@ const app = new Elysia({ prefix: "/api" })
   .use(swagger(swaggerConfig))
   .use(productsRoute)
   .use(authenRoute)
+  .use(ordersRoute)
   
 
 export const GET = app.handle;

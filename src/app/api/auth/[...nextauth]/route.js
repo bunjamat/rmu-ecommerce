@@ -66,12 +66,12 @@ export const authOptions = {
   callbacks: {
     // การ login ผ่าน Oauth จะเข้า fn นี้ทั้งหมด
     async signIn({ user, account, profile, email, credentials }) {
-      console.log("🚀 ~ signIn ~ email:", email)
-      console.log("🚀 ~ signIn ~ profile:", profile)
-      console.log("🚀 ~ signIn ~ account:", account)
-      console.log("🚀 ~ signIn ~ user:", user)
+      // console.log("🚀 ~ signIn ~ email:", email)
+      // console.log("🚀 ~ signIn ~ profile:", profile)
+      // console.log("🚀 ~ signIn ~ account:", account)
+      // console.log("🚀 ~ signIn ~ user:", user)
 
-      user.role = "customer"
+      // user.role = "customer"
 
       return true
     },

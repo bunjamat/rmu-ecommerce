@@ -10,7 +10,7 @@ import { fetcher } from "@/lib/fechData";
 
 const ProductDetail = ({ id }) => {
   const { data, error, isLoading } = useSWR(`/api/products/${id}`, fetcher);
-  console.log("🚀 ~ ProductDetail ~ data:", data)
+  console.log("🚀 ~ ProductDetail ~ data:", data);
 
   //logic
   // ดึงข้อมูลจาก api
@@ -31,13 +31,21 @@ const ProductDetail = ({ id }) => {
         name: product.name,
         price: product.price,
         image: product.image_url,
+        stock : product.stock_quantity
       };
 
-      addItem(data);
+      const addCart = addItem(data, product.stock_quantity);
+
+      if (addCart?.error) {
+        toast.error(addCart.error);
+        return;
+      }
+
       toast.success("เพิ่มสินค้าเรียบร้อยแล้ว", {
         description: `เพิ่ม ${product.name} ลงในตระกร้าแล้ว`,
       });
     } catch (error) {
+      console.log("🚀 ~ handleAddToCart ~ error:", error)
       toast.error("ไม่สามารถเพิ่มสินค้าได้ ลองใหม่อีกครั้ง");
     }
   };
