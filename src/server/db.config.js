@@ -5,6 +5,9 @@ const pgp = pgPromise({
   capSQL: true, // แปลง SQL ให้เป็นตัวพิมพ์ใหญ่
 });
 
+const globalForPg = globalThis;
+
+
 // กําหนดค่าพื้นฐานสำหรับเชื่อมต่อ
 const connectionConfig = {
   host: process.env.PGHOST,

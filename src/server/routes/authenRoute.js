@@ -33,21 +33,18 @@ export const authenRoute = new Elysia({ prefix: "/authen" })
   )
   .post(
     "login",
-    async({ body,set }) => {
-
+    async ({ body, set }) => {
       const checkLogin = await authenController.login(body);
-      
 
-      if(checkLogin.error) {
-        set.status = 400
+      if (checkLogin.error) {
+        set.status = 400;
         return {
-          error : true,
-          message : checkLogin.message
-        }
+          error: true,
+          message: checkLogin.message,
+        };
       }
 
-      return  checkLogin
-  
+      return checkLogin;
     },
     {
       body: t.Object({
@@ -55,4 +52,28 @@ export const authenRoute = new Elysia({ prefix: "/authen" })
         password: t.String(),
       }),
     }
-  );
+  )
+  .post("/send-otp", ({ body, set }) => {
+    try {
+      return authenController.sendOtp(body)
+      
+    } catch (error) {
+      set.status = 400;
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
+
+  })
+  .post("/verify-otp", ({ body, set }) => {
+    try {
+      return authenController.verifyOtp(body)
+    } catch (error) {
+      set.status = 400;
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
+  });

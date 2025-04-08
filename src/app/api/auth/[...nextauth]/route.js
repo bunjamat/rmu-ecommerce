@@ -5,6 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
   providers: [
+    // Credentials Email/Password
     CredentialsProvider({
       name: "login username/password",
       credentials: {
@@ -15,9 +16,7 @@ export const authOptions = {
         if (!credentials.email || !credentials.password) {
           return null;
         }
-
         try {
-
           // ค้นหา user จาก api login
           const res = await fetch("http://localhost:3080/api/authen/login", {
             method: "POST",
@@ -27,10 +26,9 @@ export const authOptions = {
             body: JSON.stringify(credentials),
           });
 
-
           const user = await res.json();
 
-          if(user.error){
+          if (user.error) {
             throw new Error(user.message);
           }
 
@@ -41,27 +39,89 @@ export const authOptions = {
           //     fullName: "John Doe",
           //     role: "customer",
           //   };
-         
+
           return {
             id: user.id,
-            email : user.email,
-            name : user.full_name,
-            role : user.role
+            email: user.email,
+            name: user.full_name,
+            role: user.role,
           };
-
         } catch (error) {
           throw new Error(error.message);
         }
       },
     }),
+    // OTP
+    CredentialsProvider({
+      id: "otp-login",
+      name: "Login SMS OTP",
+      credentials: {
+        phone_number: { label: "เบอร์โทร", type: "tel" },
+        otp_code: { label: "รหัส otp", type: "text" },
+        token_ref: { label: "รหัสอ้างอิง", type: "text" },
+      },
+      async authorize(credentials) {
+        if (
+          !credentials.phone_number ||
+          !credentials.otp_code ||
+          !credentials.token_ref
+        ) {
+          return null;
+        }
+
+        try {
+          // ส่งไป OTP ไปยัง api
+          const res = await fetch(
+            "http://localhost:3080/api/authen/verify-otp",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                phoneNumber: credentials.phone_number,
+                otpPin: credentials.otp_code,
+                tokenRef: credentials.token_ref,
+              }),
+            }
+          );
+
+          const user = await res.json();
+          console.log("🚀 ~ authorize ~ user:", user)
+
+          if (user.error) {
+            throw new Error(user.message);
+          }
+
+          //   const user = {
+          //     id: 1,
+          //     email: "m@example.com",
+          //     password: "123456",
+          //     fullName: "John Doe",
+          //     role: "customer",
+          //   };
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.full_name,
+            role: user.role,
+          };
+        } catch (error) {
+          throw new Error(error.message);
+        }
+      },
+    }),
+    // LINE
     LineProvider({
       clientId: process.env.LINE_CLIENT_ID,
-      clientSecret: process.env.LINE_CLIENT_SECRET
+      clientSecret: process.env.LINE_CLIENT_SECRET,
     }),
+    // Google
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
-    })
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
   callbacks: {
     // การ login ผ่าน Oauth จะเข้า fn นี้ทั้งหมด
@@ -73,7 +133,7 @@ export const authOptions = {
 
       // user.role = "customer"
 
-      return true
+      return true;
     },
     async jwt({ token, user }) {
       if (user) {
@@ -86,7 +146,7 @@ export const authOptions = {
       if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
-        session.user.type = "tester"
+        session.user.type = "tester";
       }
 
       return session;

@@ -1,5 +1,7 @@
+import axios from "axios";
 import { db } from "../db.config";
 import bcrypt from "bcryptjs";
+const qs = require("qs");
 
 export const authenController = {
   register: async (body) => {
@@ -60,6 +62,73 @@ export const authenController = {
         error: true,
         message: error.message,
       };
+    }
+  },
+  sendOtp: async (body) => {
+    try {
+      const { phoneNumber } = body;
+      let data = qs.stringify({
+        key: process.env.OTP_KEY,
+        secret: process.env.OTP_SECRET,
+        msisdn: phoneNumber,
+      });
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "https://otp.thaibulksms.com/v2/otp/request",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
+
+      const result = await axios.request(config);
+      return result.data;
+    } catch (error) {
+      throw new Error("เกิดข้อผิดพลาดในการส่ง OTP");
+    }
+  },
+  verifyOtp: async (body) => {
+    try {
+      const { phoneNumber,otpPin, tokenRef } = body;
+      let data = qs.stringify({
+        key: process.env.OTP_KEY,
+        secret: process.env.OTP_SECRET,
+        token: tokenRef,
+        pin: otpPin,
+      });
+
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "https://otp.thaibulksms.com/v2/otp/verify",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        data: data,
+      };
+      
+        const result = await axios.request(config);
+        console.log("🚀 ~ verifyOtp: ~ result:", result.data)
+      
+     
+      // เช็คว่า otp ถูกต้องมั๊ย
+
+      if (result.data.status !== "success") {
+        throw new Error("รหัส OTP ไม่ถูกต้อง");
+      }
+
+
+
+      // หา user ว่ามีมั๊ย
+      // ถ้า otp ถูกต้องให้สร้าง user ใหม่
+
+      return result.data;
+    } catch (error) {
+      console.log("🚀 ~ verifyOtp: ~ error:", error)
+      throw new Error("เกิดข้อผิดพลาดในการตรวจสอบ OTP");
     }
   },
 };
