@@ -76,4 +76,16 @@ export const authenRoute = new Elysia({ prefix: "/authen" })
         message: error.message,
       };
     }
-  });
+  })
+  .post("/send-email", ({ body, set }) => {
+    try {
+      return authenController.sendEmail(body)
+    } catch (error) {
+      set.status = 400;
+      return {
+        error: true,
+        message: error.message,
+      };
+    }
+  })
+  ;

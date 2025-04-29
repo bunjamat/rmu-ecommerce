@@ -2,6 +2,11 @@ import axios from "axios";
 import { db } from "../db.config";
 import bcrypt from "bcryptjs";
 const qs = require("qs");
+import { google } from 'googleapis';
+import nodemailer from 'nodemailer';
+
+
+
 
 export const authenController = {
   register: async (body) => {
@@ -91,7 +96,7 @@ export const authenController = {
   },
   verifyOtp: async (body) => {
     try {
-      const { phoneNumber,otpPin, tokenRef } = body;
+      const { phoneNumber, otpPin, tokenRef } = body;
       let data = qs.stringify({
         key: process.env.OTP_KEY,
         secret: process.env.OTP_SECRET,
@@ -109,26 +114,61 @@ export const authenController = {
         },
         data: data,
       };
-      
-        const result = await axios.request(config);
-        console.log("🚀 ~ verifyOtp: ~ result:", result.data)
-      
-     
+
+      const result = await axios.request(config);
+      console.log("🚀 ~ verifyOtp: ~ result:", result.data);
+
       // เช็คว่า otp ถูกต้องมั๊ย
 
       if (result.data.status !== "success") {
         throw new Error("รหัส OTP ไม่ถูกต้อง");
       }
 
-
-
       // หา user ว่ามีมั๊ย
       // ถ้า otp ถูกต้องให้สร้าง user ใหม่
 
       return result.data;
     } catch (error) {
-      console.log("🚀 ~ verifyOtp: ~ error:", error)
+      console.log("🚀 ~ verifyOtp: ~ error:", error);
       throw new Error("เกิดข้อผิดพลาดในการตรวจสอบ OTP");
+    }
+  },
+  sendEmail: async (body) => {
+    try {
+      const { email } = body;
+
+
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+)
+console.log("🚀 ~ sendEmail: ~ oAuth2Client:", oAuth2Client)
+
+oAuth2Client.setCredentials({ refresh_token: process.env.OAUTH_REFRESH_TOKEN })
+
+      const accessToken = await oAuth2Client.getAccessToken()
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user: process.env.GMAIL_USER,
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+          accessToken: accessToken?.token,
+        },
+      })
+      
+      await transporter.sendMail({
+        from: `"My App" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject,
+        text: message,
+      })
+    } catch (error) {
+      console.log("🚀 ~ sendEmail: ~ error:", error);
+      throw new Error("เกิดข้อผิดพลาดในการส่ง OTP");
     }
   },
 };
