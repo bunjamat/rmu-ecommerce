@@ -46,7 +46,7 @@ export const authenController = {
 
       // เช็ค user ว่ามีมั๊ย
       const user = await db.oneOrNone(
-        "SELECT * FROM public.users WHERE email = $1;",
+        "SELECT * FROM public.users u INNER JOIN public.master_role r ON u.role_id = r.id WHERE email = $1;",
         [email]
       );
 

@@ -44,7 +44,7 @@ export const authOptions = {
             id: user.id,
             email: user.email,
             name: user.full_name,
-            role: user.role,
+            role: user.role_name,
           };
         } catch (error) {
           throw new Error(error.message);
