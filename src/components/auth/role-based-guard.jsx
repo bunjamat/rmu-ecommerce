@@ -1,4 +1,3 @@
-
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -12,19 +11,22 @@ export const ROLE = {
   INSTRUCTOR: "instructor",
 };
 
-const RoleBasedGuard = ({ allowedRoles, children, fallback, returnTo }) => {
-    console.log("🚀 ~ RoleBasedGuard ~ allowedRoles:", allowedRoles);
-    
+const RoleBasedGuard = ({
+  allowedRoles, // role ที่สามารถเข้าถึงหน้านี้ได้
+  children, // เนื้อหาในแต่ละหน้า
+  fallback, // เนื้อหาที่แสดงถ้าไม่สามารถเข้าถึงหน้านี้ได้
+  returnTo, // หน้าที่จะไปหลังจากเข้าถึงหน้านี้
+}) => {
   // logic
   const { data: session, status } = useSession();
   const [authorized, setAuthorized] = useState(false);
- 
+
   const router = useRouter();
+
   // แปลง allowedRoles เป็น array เสมอ
   const roleArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
 
   useEffect(() => {
-    
     // เช็คว่า session โหลดอยู่มั๊ย
     if (status === "loading") return;
 
@@ -37,13 +39,14 @@ const RoleBasedGuard = ({ allowedRoles, children, fallback, returnTo }) => {
     }
 
     // ถ้ามี session แล้ว
-    const userRole = session?.user?.role || ROLE.GUEST;
+    const userRole = session?.user?.role;
 
     // ตรวจสอบว่าผู้ใช้มีสิทธิ์เข้าถึงหน้านี้หรือไม่
-    const hasPermission = roleArray.includes(userRole);
+    const hasPermission = roleArray.includes(userRole); // true false
 
     // ถ้าผู้ใช้ไม่มีสิทธิ์เข้าถึงหน้านี้ และมีการกําหนด returnTo ให้ไปหน้า returnTo
     if (!hasPermission && returnTo) {
+      // ถ้าเข้าหน้านี้ไม่ได้ให้กลับไปที่หน้า returnTo
       router.push(returnTo);
     }
     // ถ้าผู้ใช้มีสิทธิ์เข้าถึงหน้านี้
@@ -52,14 +55,14 @@ const RoleBasedGuard = ({ allowedRoles, children, fallback, returnTo }) => {
 
   // ถ้ากำลังตรวจสอบสิทธิ์ หรือ loading session
   if (status === "loading") return <div>กำลังตรวจสอบสิทธิ์</div>;
-    
+
   // ถ้าผู้ใช้ไม่มีสิทธิ์เข้าถึงหน้านี้
   if (!authorized && fallback) {
-    return fallback || <div>authorized</div>;
+    return fallback || <div>คุณไม่มีสิทธิ์เข้าถึงหน้านี้</div>;
   }
 
   // ถ้าผู้ใช้มีสิทธิ์เข้าถึงหน้านี้
-  return authorized ? children : null;
+  return authorized ? children : <div>คุณไม่มีสิทธิ์เข้าถึงหน้านี้</div>;
 };
 
 export default RoleBasedGuard;

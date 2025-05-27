@@ -9,11 +9,15 @@ const ManageAdmin = () => {
       allowedRoles={[ROLE.ADMIN, ROLE.SUPER_ADMIN]}
       fallback={
         <div className="text-red-500 text-center text-xl font-bold">
-          คุณไม่มีสิทธิ์เข้าถึงหน้านี้
+          คุณไม่มีสิทธิ์เข้าถึงหน้านี้ สำหรับผู้ดูแลระบบเท่านั้น
         </div>
       }
     >
+
       <div>หน้าการจัดการข้อมูล Admin </div>
+
+
+
     </RoleBasedGuard>
   );
 };

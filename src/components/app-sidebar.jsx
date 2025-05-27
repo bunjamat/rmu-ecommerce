@@ -240,19 +240,22 @@ const navMain = [
     title: "จัดการข่าวสาร",
     url: "/admin/news",
     icon: Newspaper,
-    roles: [ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.FACULTY_ADMIN],
+    roles: [ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.FACULTY_ADMIN,ROLE.ALUMNI],
     items: [
       {
         title: "ข่าวประชาสัมพันธ์",
         url: "/admin/news/announcements",
+        roles :[ROLE.ALUMNI]
       },
       {
         title: "ข่าวรับสมัครงาน",
         url: "/admin/news/jobs",
+        roles :[ROLE.ALUMNI]
       },
       {
         title: "ข่าวกิจกรรม",
         url: "/admin/news/events",
+        roles :[ROLE.ALUMNI]
       },
     ],
   },
